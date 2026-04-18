@@ -1,0 +1,50 @@
+from socket import socket, AF_INET, SOCK_STREAM
+from threading import*
+
+sock = socket(AF_INET, SOCK_STREAM)
+sock.bind(('localhost', 12345))
+sock.listen(5)
+sock.setblocking(False)
+
+conn, adr = sock.accept()
+
+players = {}
+conn_ids = {}
+id_counter = 0
+player_data = packet.split('|')
+['1, 150, 200, 25', '2, 300, 400, 20', '3, 500, 600, 30']
+for conn in list(players):
+    try:
+        data = conn.recv(64).decode().strip()
+        if ',' in data:
+            parts = data.split(',')
+            if len(parts) == 4:
+                pid, x, y, r = map(int, parts)
+                players(conn) = {'id' : pid, 'x':x,"y":y, 'r':r}
+                player_data(conn) = players(conn)
+    except:
+        continue
+eliminated = []
+for conn1 in player_data:
+    if conn1 in eliminated: continue
+    p1 = player_data[conn1]
+    for conn2 in player_data:
+        if conn1 == conn2 or conn2 in eliminated: continue
+        p2 = player_data[conn2]
+        dx, dy = p1['x'] - p2['x'],p1['y'] - p2['y']
+        distance = (dx**2 + dy**2)**0.5
+        if distance < p1['r'] + p2['r'] and p1['r'] > p2['r']*1.1:
+            p1['r'] += int(p2['r']*0.5)
+            players[conn1] = p1
+            eliminated.append(conn2)
+packet = '|'.join([f"{p['id']},{p['x']},{p['y']},{p['r']}"
+                  for c, p in players.item() if c != conn and c not in eliminated]) + '|'
+conn.send(packet.encode())
+packet = '|'.join([...])
+conn.send(packet.encode())
+
+if conn in eliminated:
+    conn.send("LOSE".encode())
+    to_remove.append(conn)
+Thread(target=handle_data, daemon= True).start()
+

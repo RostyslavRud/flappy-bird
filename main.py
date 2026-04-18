@@ -1,0 +1,49 @@
+import sounddevice as sd
+import scipy.io.wavfile as wav
+from pygame import*
+from random import*
+
+init()
+window_size = 1200, 700
+window = display.set_mode(window_size)
+bird = Rect(50, 500, 100, 100)
+bird_img = image.load('bird.jpg')
+bird_img = transform.scale(bird_img, (100, 100))
+bird = bird_img.get_rect()
+def generate_pipes(count, pipe_width= 140, gap = 280, min_heigh = 50, max_heigh = 440, distance = 800):
+    pipes = []
+    start_x = window_size[0]
+    for i in range(count):
+        height =  randint(min_heigh, max_heigh)
+        top_pipe = Rect(start_x,0,pipe_width,height)
+        bottom_pipe = Rect(start_x, height+ gap, pipe_width, window_size[1]- (height + gap))
+        pipes.extend([top_pipe, bottom_pipe])
+        start_x += distance
+    return  pipes
+
+
+pipes = generate_pipes((150))
+lose = False
+while True:
+    for e in event.get():
+        if e.type == QUIT:
+            quit()
+    window.fill((255, 255, 255))
+    window.blit(bird_img, bird)
+    
+    if len(pipes) < 0:
+        pipes += generate_pipes(150)
+    for pipe in pipes:
+        if not lose:
+            pipe.x -= 1
+        draw.rect(window, "green",pipe)
+        if pipe.x <= -100:
+            pipes.remove(pipe)
+        if bird.colliderect(pipe):
+            lose = True
+
+    display.update()
+
+    keys = key.get_pressed()
+    if keys[K_w]: bird.y -= 1
+    if keys[K_s]: bird.y += 1
